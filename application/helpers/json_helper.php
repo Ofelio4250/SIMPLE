@@ -132,57 +132,119 @@ function tabla_declaracion($json){
     $json_encodedd = json_encode($json);
     $resultado = json_decode($json_encodedd);
     $tablas_anidadas = "";
-
-    if(count($resultado->registroPorAnnio)>1){
-        foreach($resultado->registroPorAnnio as $registro){
+    if(count($resultado->registros->registrosBeneficios)>1){
+        $contador = 0;
+        foreach($resultado->registros->registrosBeneficios as $benef){
+            $mes = 0;
+            if(count($benef->registrosPorAnnios->registroPorAnnio)==1){
+                $columnas = "";
+                $filas = "";
+                if($benef->registrosPorAnnios->registroPorAnnio->annio != 0){
+                    foreach($benef->registrosPorAnnios->registroPorAnnio->registrosPorMeses->mes as $registro2){
+                        $panio = '<p>'.$benef->beneficio.'-'.$benef->registrosPorAnnios->registroPorAnnio->annio.'</p>';
+                        $tabla = '<table border="1" cellpadding="1" cellspacing="1"><thead>';
+                        if($mes==0)
+                            $columnas .= "<tr>";
+                        $filas .= "<tr>";
+                        foreach($registro2 as $registro3=>$valor3){
+                            if($mes==0){
+                                $spaced = preg_replace('/([A-Z])/', ' $1', $registro3);
+                                $columnas .= '<td><strong>'.$spaced.'</strong></td>';
+                            }
+                            $filas .= '<td>'.$valor3.'</td>';
+                        }
+                        if($mes==0)
+                            $columnas .= "</tr>";
+                        $filas .= "</tr>";
+                        $mes++;
+                    }
+                    $tabla .= $columnas.'</thead><tbody>'.$filas.'</tbody></table>';
+                    $tablas_anidadas .= $panio.$tabla;
+                }
+            }else{
+                $tablas_beneficios = "";
+                foreach($benef->registrosPorAnnios->registroPorAnnio as $registro){
+                    $columnas = "";
+                    $filas = "";
+                    $mes = 0;
+                    $panio = '<p>'.$benef->beneficio.'-'.$registro->annio.'</p>';
+                    $tabla = '<table border="1" cellpadding="1" cellspacing="1"><thead>';
+                    foreach($registro->registrosPorMeses->mes as $registro2){
+                        if($mes==0)
+                            $columnas .= "<tr>";
+                        $filas .= "<tr>";
+                        foreach($registro2 as $registro3=>$valor3){
+                            if($mes==0){
+                                $spaced = preg_replace('/([A-Z])/', ' $1', $registro3);
+                                $columnas .= '<td><strong>'.$spaced.'</strong></td>';
+                            }
+                            $spaced = preg_replace('/([A-Z])/', ' $1', $valor3);
+                            $filas .= '<td>'.$valor3.'</td>';
+                        }
+                        if($mes==0)
+                            $columnas .= "</tr>";
+                        $filas .= "</tr>";
+                        $mes++;
+                    }
+                    $tabla .= $columnas.'</thead><tbody>'.$filas.'</tbody></table>';
+                    $tablas_anidadas .= $panio.$tabla;
+                }
+            }
+        }
+    }elseif(count($resultado->registros->registrosBeneficios)==1){
+        $mes = 0;
+        if(count($resultado->registros->registrosBeneficios->registrosPorAnnios->registroPorAnnio)==1){
             $columnas = "";
             $filas = "";
-            $mes = 0;
-            $panio = '<p>'.$registro->annio.'</p>';
-            $tabla = '<table border="1" cellpadding="1" cellspacing="1"><thead>';
-            foreach($registro->registrosPorMeses->mes as $registro2){
-                if($mes==0)
-                    $columnas .= "<tr>";
-                $filas .= "<tr>";
-                foreach($registro2 as $registro3=>$valor3){
-                    if($mes==0){
-                        $spaced = preg_replace('/([A-Z])/', ' $1', $registro3);
-                        $columnas .= '<td><strong>'.$spaced.'</strong></td>';
+            if($resultado->registros->registrosBeneficios->registrosPorAnnios->registroPorAnnio->annio != 0){
+                foreach($resultado->registros->registrosBeneficios->registrosPorAnnios->registroPorAnnio->registrosPorMeses->mes as $registro2){
+                    $panio = '<p>'.$resultado->registros->registrosBeneficios->beneficio.'-'.$resultado->registros->registrosBeneficios->registrosPorAnnios->registroPorAnnio->annio.'</p>';
+                    $tabla = '<table border="1" cellpadding="1" cellspacing="1"><thead>';
+                    if($mes==0)
+                        $columnas .= "<tr>";
+                    $filas .= "<tr>";
+                    foreach($registro2 as $registro3=>$valor3){
+                        if($mes==0){
+                            $spaced = preg_replace('/([A-Z])/', ' $1', $registro3);
+                            $columnas .= '<td><strong>'.$spaced.'</strong></td>';
+                        }
+                        $filas .= '<td>'.$valor3.'</td>';
                     }
-                    $spaced = preg_replace('/([A-Z])/', ' $1', $valor3);
-                    $filas .= '<td>'.$valor3.'</td>';
+                    if($mes==0)
+                        $columnas .= "</tr>";
+                    $filas .= "</tr>";
+                    $mes++;
                 }
-                if($mes==0)
-                    $columnas .= "</tr>";
-                $filas .= "</tr>";
-                $mes++;
+                $tabla .= $columnas.'</thead><tbody>'.$filas.'</tbody></table>';
+                $tablas_anidadas .= $panio.$tabla;
             }
-            $tabla .= $columnas.'</thead><tbody>'.$filas.'</tbody></table>';
-            $tablas_anidadas .= $panio.$tabla;
-        }
-    }elseif(count($resultado->registroPorAnnio)==1){
-        $mes = 0;
-        if($resultado->registroPorAnnio->annio != 0){
-            foreach($resultado->registroPorAnnio->registrosPorMeses->mes as $registro2){
-                $panio = '<p>'.$resultado->registroPorAnnio->annio.'</p>';
+        }else{
+            foreach($resultado->registros->registrosBeneficios->registrosPorAnnios->registroPorAnnio as $registro){
+                $columnas = "";
+                $filas = "";
+                $mes = 0;
+                $panio = '<p>'.$resultado->registros->registrosBeneficios->beneficio.'-'.$registro->annio.'</p>';
                 $tabla = '<table border="1" cellpadding="1" cellspacing="1"><thead>';
-                if($mes==0)
-                    $columnas .= "<tr>";
-                $filas .= "<tr>";
-                foreach($registro2 as $registro3=>$valor3){
-                    if($mes==0){
-                        $spaced = preg_replace('/([A-Z])/', ' $1', $registro3);
-                        $columnas .= '<td><strong>'.$spaced.'</strong></td>';
+                foreach($registro->registrosPorMeses->mes as $registro2){
+                    if($mes==0)
+                        $columnas .= "<tr>";
+                    $filas .= "<tr>";
+                    foreach($registro2 as $registro3=>$valor3){
+                        if($mes==0){
+                            $spaced = preg_replace('/([A-Z])/', ' $1', $registro3);
+                            $columnas .= '<td><strong>'.$spaced.'</strong></td>';
+                        }
+                        $spaced = preg_replace('/([A-Z])/', ' $1', $valor3);
+                        $filas .= '<td>'.$valor3.'</td>';
                     }
-                    $filas .= '<td>'.$valor3.'</td>';
+                    if($mes==0)
+                        $columnas .= "</tr>";
+                    $filas .= "</tr>";
+                    $mes++;
                 }
-                if($mes==0)
-                    $columnas .= "</tr>";
-                $filas .= "</tr>";
-                $mes++;
+                $tabla .= $columnas.'</thead><tbody>'.$filas.'</tbody></table>';
+                $tablas_anidadas .= $panio.$tabla;
             }
-            $tabla .= $columnas.'</thead><tbody>'.$filas.'</tbody></table>';
-            $tablas_anidadas .= $panio.$tabla;
         }
     }
     return $tablas_anidadas;
